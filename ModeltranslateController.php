@@ -75,4 +75,45 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             $this->view->predicates[] = $predicate['predicate'];
         }
     }
+
+    private function receiveResourceUris($predicates= array(), $languages = array()) {
+
+        $selectedModel ="";
+
+
+        $query = "
+
+SELECT ?s
+FROM <http://localhost/OntoWiki/Config/>
+WHERE {
+OPTIONAL {
+  ?s ?p ?o .
+  FILTER (isLiteral(?o))
+  FILTER ( langMatches( lang(?o), \"en\" ) )
+}
+OPTIONAL {
+  ?s ?p ?o2 .
+  FILTER (isLiteral(?o2))
+  FILTER (langMatches( lang(?o2), \"de\"))
+}
+FILTER (
+  ?p = <http://www.w3.org/2000/01/rdf-schema#label> ||
+  ?p = <http://www.w3.org/2000/01/rdf-schema#comment>
+)
+FILTER (!bound(?o2))
+
+
+
+
+}
+
+
+
+";
+
+
+    }
+
+
+
 }
