@@ -21,7 +21,7 @@ foreach ($this->predicates as $predicate)
 <?php foreach ($this->resources as $resource => $values) : ?>
 <table style ="padding:0px;margin-top:1em; border-top:1px dotted #ababab; background-color:#ededed;width:100% ">
     <tr>
-        <th style ="padding:0.2em; padding-left:1em; border-bottom:1px dotted #ababab; background-color:#dcdcdc ">
+        <th style ="padding:0.2em; padding-left:1em; border-bottom:1px dotted #ababab; background-color:#dcdcdc " colspan="2">
             <a class="hasMenu" style="text-decoration:none;"
                                     about="<?php echo $resource; ?>"
                                     href="<?php
@@ -32,6 +32,38 @@ foreach ($this->predicates as $predicate)
             </a>
         </th>
     </tr>
-    
+
+   <?php foreach ($values as $predicate => $objects) : ?>
+    <tr >
+        <td style ="padding:0.2em; padding-left:2em; border-bottom:1px dotted #ababab; background-color:#efefef " colspan="2">
+            <a class="hasMenu" style="text-decoration:none;"
+                                    about="<?php echo $predicate; ?>"
+                                    href="<?php
+                                        $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                                        $url->setParam('r', $predicate , true);
+                                    echo (string) $url ; ?>" >
+                <?php echo $this->titleHelper->getTitle($predicate, $this->locale); ?>
+            </a>
+        </td>
+    </tr>
+       <?php foreach ($objects as $object) : ?>
+        <tr style ="background-color:#fff " >
+            <td style ="padding:0.2em; padding-left:3em;">
+                <?php echo $object['lang'] ?>
+            </td>
+            <td>
+                <input type="text" value="<?php echo $object['value'] ?>" size="100">
+            </td>
+
+        </tr>
+        <?php endforeach ?>
+
+
+
+
+   <?php endforeach ?>
+
+
+
 </table>
 <?php endforeach ?>

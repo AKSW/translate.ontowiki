@@ -67,7 +67,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         $resources = $this->receiveResourceUris($predicates, $languages);
         $resElements = array();
         foreach ($resources as $resource) {
-            $elements = $this->receiveLiteralValuesForResource($resource);
+            $elements = $this->receiveLiteralValuesForResource($resource,$predicates, $languages);
             $this->titleHelper->addResource($resource);
 
             $resElements[$resource] = $elements;
@@ -124,6 +124,14 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         $optional = "";
         $bFilter = "";
         $oIndex = 0;
+
+        $optionals[] = "
+            OPTIONAL {
+              ?s ?p ?o .
+              FILTER (isLiteral(?o))
+            }";
+        $bounds[] = " bound(?o) ";
+
         foreach ($languages as $language) {
             $optionals[] = "
                 OPTIONAL {
@@ -132,22 +140,25 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
                   FILTER ( langMatches( lang(?o".$oIndex."), \"".$language."\" ) )
                 }
             ";
-            $bounds[] = " !bound(?o".$oIndex.") ";
+            $bounds[] = " bound(?o".$oIndex.") ";
             $oIndex++;
         }
         $optional = implode(" \n ", $optionals);
         $bFilter    = " Filter ( " . implode(" || ", $bounds) . " )";;
+        $b2Filter    = " Filter (!( " . implode(" && ", $bounds) . ") )";;
 
         $query = "
-            SELECT ?s
+            SELECT DISTINCT ?s
             WHERE {
             " .$optional. "
             " .$pFilter. "
             " .$bFilter. "
+            " .$b2Filter. "
             }
             LIMIT ". $limit ."
             OFFSET " . $offset . "
         ";
+        #echo "<xmp>" . ($query) . "</xmp>";
         $result = $this->model->sparqlQuery($query);
         $resources = array();
         foreach ($result as $entry) {
@@ -156,17 +167,34 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         return ($resources);
     }
 
-    private function receiveLiteralValuesForResource($resourceUri) {
+    private function receiveLiteralValuesForResource($resourceUri, $predicates = array(), $languages = array("en")) {
+
+        $pFilter = $lFilter = "";
+        if (!empty($predicates)) {
+            $pFilters = array();
+            foreach ($predicates as $predicate) {
+                $pFilters[] = " ?p = <".$predicate."> ";
+            }
+            $pFilter = "FILTER ( " . (implode(" || ", $pFilters)) . " )";
+        }
+
+         $lFilters[] = " lang(?o) = \"\"  ";
+        foreach ($languages as $language) {
+            $lFilters[] = " lang(?o) = \"".$language."\"  ";
+        }
+        $lFilter = "FILTER ( " . (implode(" || ", $lFilters)) . " )";
 
         $query = "
             SELECT ?p ?o
             WHERE {
                 <".$resourceUri."> ?p ?o .
                 FILTER (isLiteral(?o))
+                ".$pFilter."
+                ".$lFilter."
             }
 
         ";
-
+var_dump($query);
         $results = $this->model->sparqlQuery($query, array('result_format' => "extended"));
         $values = array();
         if (!empty($results['results']['bindings'])) { $i = 0;
