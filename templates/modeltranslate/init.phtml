@@ -25,21 +25,11 @@
     </td>
     <td>
         <?php 
-        $i = 0;
-        foreach ($this->languages as $language) { ?>
-        <input type="checkbox" name="predicates" id="<?php echo $predicate; ?>">
-        <a class="hasMenu" style="text-decoration:none;"
-                                about="<?php echo $predicate; ?>"
-                                href="<?php 
-                                    $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
-                                    $url->setParam('r', $predicate , true);
-                                echo (string) $url ; ?>" >
-                        <?php echo $this->titleHelper->getTitle($predicate, $this->locale); ?> 
-        </a><br/>
-        <?php
-            $i++;
-        } ?>
-        <input type="radio" name="all-predicates"> All predicates
+        foreach ($this->languages as $key => $language) { ?>
+            <input type="checkbox" name="languages" id="<?php echo $language->code; ?>"> <?php echo $language->label; ?> 
+            <br/>
+        <?php } ?>
+        <input type="radio" name="all-languages"> All languages
     </td>
 </tr>
 <tr>
