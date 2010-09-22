@@ -17,3 +17,21 @@ foreach ($this->predicates as $predicate)
 }
 ?>
 <input type="radio" name="all-predicates"> All predicates
+
+<?php foreach ($this->resources as $resource => $values) : ?>
+<table style ="padding:0px;margin-top:1em; border-top:1px dotted #ababab; background-color:#ededed;width:100% ">
+    <tr>
+        <th style ="padding:0.2em; padding-left:1em; border-bottom:1px dotted #ababab; background-color:#dcdcdc ">
+            <a class="hasMenu" style="text-decoration:none;"
+                                    about="<?php echo $resource; ?>"
+                                    href="<?php
+                                        $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                                        $url->setParam('r', $resource , true);
+                                    echo (string) $url ; ?>" >
+                <?php echo $this->titleHelper->getTitle($resource, $this->locale); ?>
+            </a>
+        </th>
+    </tr>
+    
+</table>
+<?php endforeach ?>

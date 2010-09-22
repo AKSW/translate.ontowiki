@@ -52,22 +52,48 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
      *
      */
     public function initAction() {
+        $this->createConfigurationElements();
+
+
+        ##Dummy Call
+
+        $predicates = array(    "http://www.w3.org/2000/01/rdf-schema#label",
+                                "http://www.w3.org/2000/01/rdf-schema#comment"
+                            );
+        $languages   = array(   "en",
+                                "de"
+                            );
+
+        $resources = $this->receiveResourceUris($predicates, $languages);
+        $resElements = array();
+        foreach ($resources as $resource) {
+            $elements = $this->receiveLiteralValuesForResource($resource);
+            $this->titleHelper->addResource($resource);
+
+            $resElements[$resource] = $elements;
+        }
+        $this->view->resources = $resElements;
+    }
+
+
+    private function createConfigurationElements() {
+
         $subjectVar = new Erfurt_Sparql_Query2_Var('subject');
         $predicateVar = new Erfurt_Sparql_Query2_Var('predicate');
         $objectVar = new Erfurt_Sparql_Query2_Var('object');
-        
+
         $query = new Erfurt_Sparql_Query2();
         $query->addProjectionVar($predicateVar)->setDistinct(true);
-        
+
         $elements[] = new Erfurt_Sparql_Query2_Triple($subjectVar,$predicateVar,$objectVar);
         $elements[] = new Erfurt_Sparql_Query2_Filter(new Erfurt_Sparql_Query2_isLiteral($objectVar));
-        
+
         $query->addElements($elements);
-        
+
         $query->setLimit(50);
-        
+
         $predicates = $this->model->sparqlQuery($query);
-        
+
         $this->view->predicates = array();
         foreach ($predicates as $key => $predicate)
         {
@@ -76,44 +102,82 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         }
     }
 
-    private function receiveResourceUris($predicates= array(), $languages = array()) {
 
-        $selectedModel ="";
 
+
+
+
+
+    private function receiveResourceUris($predicates= array(), $languages = array("en"), $limit = 20 , $offset = 0) {
+
+        $pFilter = "";
+        if (!empty($predicates)) {
+            $pFilters = array();
+            foreach ($predicates as $predicate) {
+                $pFilters[] = " ?p = <".$predicate."> ";
+            }
+            $pFilter = "FILTER ( " . (implode(" || ", $pFilters)) . " )";
+        }
+
+        $optionals = array();
+        $bounds = array();
+        $optional = "";
+        $bFilter = "";
+        $oIndex = 0;
+        foreach ($languages as $language) {
+            $optionals[] = "
+                OPTIONAL {
+                  ?s ?p ?o".$oIndex." .
+                  FILTER (isLiteral(?o".$oIndex."))
+                  FILTER ( langMatches( lang(?o".$oIndex."), \"".$language."\" ) )
+                }
+            ";
+            $bounds[] = " !bound(?o".$oIndex.") ";
+            $oIndex++;
+        }
+        $optional = implode(" \n ", $optionals);
+        $bFilter    = " Filter ( " . implode(" || ", $bounds) . " )";;
 
         $query = "
-
-SELECT ?s
-FROM <http://localhost/OntoWiki/Config/>
-WHERE {
-OPTIONAL {
-  ?s ?p ?o .
-  FILTER (isLiteral(?o))
-  FILTER ( langMatches( lang(?o), \"en\" ) )
-}
-OPTIONAL {
-  ?s ?p ?o2 .
-  FILTER (isLiteral(?o2))
-  FILTER (langMatches( lang(?o2), \"de\"))
-}
-FILTER (
-  ?p = <http://www.w3.org/2000/01/rdf-schema#label> ||
-  ?p = <http://www.w3.org/2000/01/rdf-schema#comment>
-)
-FILTER (!bound(?o2))
-
-
-
-
-}
-
-
-
-";
-
-
+            SELECT ?s
+            WHERE {
+            " .$optional. "
+            " .$pFilter. "
+            " .$bFilter. "
+            }
+            LIMIT ". $limit ."
+            OFFSET " . $offset . "
+        ";
+        $result = $this->model->sparqlQuery($query);
+        $resources = array();
+        foreach ($result as $entry) {
+            $resources[] = $entry['s'];
+        }
+        return ($resources);
     }
 
+    private function receiveLiteralValuesForResource($resourceUri) {
 
+        $query = "
+            SELECT ?p ?o
+            WHERE {
+                <".$resourceUri."> ?p ?o .
+                FILTER (isLiteral(?o))
+            }
+
+        ";
+
+        $results = $this->model->sparqlQuery($query, array('result_format' => "extended"));
+        $values = array();
+        if (!empty($results['results']['bindings'])) { $i = 0;
+            foreach ($results['results']['bindings'] as $entry) {
+                $this->titleHelper->addResource($entry['p']);
+                $i++;
+                $values[$entry['p']['value']][$i]['value'] = $entry['o']['value'];
+                $values[$entry['p']['value']][$i]['lang'] = $entry['o']['xml:lang'];
+            }
+        }
+        return $values;
+    }
 
 }
