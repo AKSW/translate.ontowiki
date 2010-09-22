@@ -64,8 +64,12 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
                                 "http://www.w3.org/2000/01/rdf-schema#comment"
                             );
         $languages   = array(   "en",
-                                "de"
+                                "de",
+                                "ar",
+                                "hi",
                             );
+
+        $preferedBaseLanguage = "en";
 
         $resources = $this->receiveResourceUris($predicates, $languages);
 
@@ -73,9 +77,12 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         foreach ($resources as $resource) {
             $elements = $this->receiveLiteralValuesForResource($resource,$predicates, $languages);
             $this->titleHelper->addResource($resource);
-
             $resElements[$resource] = $elements;
         }
+
+        $resElements = $this->translateMissingElements($resElements, $languages, $preferedBaseLanguage);
+
+
         $this->view->resources = $resElements;
     }
 
@@ -105,12 +112,6 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             $this->view->predicates[] = $predicate['predicate'];
         }
     }
-
-
-
-
-
-
 
     private function receiveResourceUris($predicates= array(), $languages = array("en"), $limit = 20 , $offset = 0) {
 
@@ -207,9 +208,68 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
                 $i++;
                 $values[$entry['p']['value']][$i]['value'] = $entry['o']['value'];
                 $values[$entry['p']['value']][$i]['lang'] = !empty($entry['o']['xml:lang'])?$entry['o']['xml:lang']:"";
+                $values[$entry['p']['value']][$i]['source'] = "store";
             }
         }
         return $values;
     }
+
+    private function translateMissingElements($resources, $languages, $preferedBaseLanguage) {
+
+        require_once 'library/gtranslate-api-php/GTranslate.php';
+        $gt = new Gtranslate;
+        foreach ($resources as $resource => $predicates) {
+            foreach ($languages as $language) {
+                
+                $sourceLabel = "";
+                $fallBackLabel = "";
+                foreach($predicates as $predicate => $elements) {
+                    $hit = false;
+                    foreach ($elements as $element) {
+                        if ($element['lang'] == $language) {
+                            $hit = true;
+                        }
+                        if ($element['lang'] == $preferedBaseLanguage) {
+                            $sourceLabel = $element['value'];
+                        }
+                        $fallBackLabel = $element['value'];
+                    }
+                    if (!$hit) {
+                        $baseLan = "";
+                        if ($sourceLabel != "") {
+                            $baseLan = $preferedBaseLanguage;
+                            $label = $sourceLabel;
+                        } else {
+                            $baseLan = "";
+                            $label = $fallBackLabel;
+                        }
+
+                        $callName = $baseLan . "_to_" . $language;
+                        $translation = "";
+                        try {
+                            $translation = $gt->$callName($label);
+                        } catch (GTranslateException $ge) {
+                            $message = "Translation fails with code: " . ((string) $ge);
+                            $this->_owApp->appendMessage(
+                                new OntoWiki_Message($message, OntoWiki_Message::ERROR, array('escape' => false))
+                            );
+                            $translation = "" ;
+                        }
+
+                        $resources[$resource][$predicate][] = array(
+                            'lang'  => $language,
+                            'value' => $translation,
+                            'source' => 'translator'
+                        );
+                    }
+                }
+            }
+        }
+
+        return ($resources);
+        
+    }
+
+
 
 }
