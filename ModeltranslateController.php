@@ -19,12 +19,15 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
 
     public function init() {
         parent::init();
-        $this->_owApp = OntoWiki::getInstance();
-        $this->store = $this->_owApp->erfurt->getStore();
-        $this->translate = $this->_owApp->translate;
-        $this->ac = $this->_erfurt->getAc();
-        $this->locale       = $this->_owApp->config->languages->locale;
-        $this->titleHelper  = new OntoWiki_Model_TitleHelper($this->_owApp->selectedModel);
+        $this->_owApp            = OntoWiki::getInstance();
+        $this->store             = $this->_owApp->erfurt->getStore();
+        $this->translate         = $this->_owApp->translate;
+        $this->ac                = $this->_erfurt->getAc();
+        $this->locale            = $this->_owApp->config->languages->locale;
+        $this->titleHelper       = new OntoWiki_Model_TitleHelper($this->_owApp->selectedModel);
+        $this->languages         = $this->_privateConfig->languages;
+        
+        $this->view->languages   = $this->languages;
         $this->view->locale      = $this->locale;
         $this->view->titleHelper = $this->titleHelper;
 
@@ -65,6 +68,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
                             );
 
         $resources = $this->receiveResourceUris($predicates, $languages);
+
         $resElements = array();
         foreach ($resources as $resource) {
             $elements = $this->receiveLiteralValuesForResource($resource,$predicates, $languages);
@@ -158,7 +162,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             LIMIT ". $limit ."
             OFFSET " . $offset . "
         ";
-        #echo "<xmp>" . ($query) . "</xmp>";
+
         $result = $this->model->sparqlQuery($query);
         $resources = array();
         foreach ($result as $entry) {
@@ -194,7 +198,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             }
 
         ";
-var_dump($query);
+
         $results = $this->model->sparqlQuery($query, array('result_format' => "extended"));
         $values = array();
         if (!empty($results['results']['bindings'])) { $i = 0;
@@ -202,7 +206,7 @@ var_dump($query);
                 $this->titleHelper->addResource($entry['p']);
                 $i++;
                 $values[$entry['p']['value']][$i]['value'] = $entry['o']['value'];
-                $values[$entry['p']['value']][$i]['lang'] = $entry['o']['xml:lang'];
+                $values[$entry['p']['value']][$i]['lang'] = !empty($entry['o']['xml:lang'])?$entry['o']['xml:lang']:"";
             }
         }
         return $values;
