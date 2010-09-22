@@ -1,3 +1,31 @@
+<script type="text/javascript">
+    $(document).ready(function(){
+        // predicates stuff
+        $(".predicates").change(function(){
+            $("#all-predicates").attr('checked', false);
+        });
+        $("#all-predicates").change(function(){
+            if($(this).attr("checked")){
+                $(".predicates").each(function(){
+                    $(this).attr("checked", false);
+                });
+            }
+        });
+        
+        // languages stuff
+        $(".languages").change(function(){
+            $("#all-languages").attr('checked', false);
+        });
+        $("#all-languages").change(function(){
+            if($(this).attr("checked")){
+                $(".languages").each(function(){
+                    $(this).attr("checked", false);
+                });
+            }
+        });
+    });
+</script>
+
 <!-- OPTIONS TABLE -->
 <table>
 <tr>
@@ -9,7 +37,7 @@
         <?php 
         $i = 0;
         foreach ($this->predicates as $predicate) { ?>
-        <input type="checkbox" name="predicates" id="<?php echo $predicate; ?>">
+        <input type="checkbox" class="predicates" id="<?php echo $predicate; ?>">
         <a class="hasMenu" style="text-decoration:none;"
                                 about="<?php echo $predicate; ?>"
                                 href="<?php 
@@ -21,15 +49,15 @@
         <?php
             $i++;
         } ?>
-        <input type="radio" name="all-predicates"> All predicates
+        <input type="radio" id="all-predicates" checked="true"> All predicates
     </td>
     <td>
         <?php 
         foreach ($this->languages as $key => $language) { ?>
-            <input type="checkbox" name="languages" id="<?php echo $language->code; ?>"> <?php echo $language->label; ?> 
+            <input type="checkbox" class="languages" id="<?php echo $language->code; ?>"> <?php echo $language->label; ?> 
             <br/>
         <?php } ?>
-        <input type="radio" name="all-languages"> All languages
+        <input type="radio" id="all-languages" checked="true"> All languages
     </td>
 </tr>
 <tr>
