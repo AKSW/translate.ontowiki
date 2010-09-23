@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 22
+/svn/!svn/ver/14/trunk
+END
+example.php
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/12/trunk/example.php
+END
+languages.ini
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/13/trunk/languages.ini
+END
+example_curl.php
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/9/trunk/example_curl.php
+END
+ChangeLog
+K 25
+svn:wc:ra_dav:version-url
+V 32
+/svn/!svn/ver/14/trunk/ChangeLog
+END
+COPYING
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/2/trunk/COPYING
+END
+GTranslate.php
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/11/trunk/GTranslate.php
+END

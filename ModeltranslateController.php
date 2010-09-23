@@ -66,6 +66,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         $languages   = array(   "en",
                                 "de",
                                 "ru",
+                                "ar",
                             );
 
         $preferedBaseLanguage = "en";
