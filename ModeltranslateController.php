@@ -154,7 +154,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             LIMIT ". $limit ."
             OFFSET " . $offset . "
         ";
-
+var_dump($query);
         $result = $this->model->sparqlQuery($query);
 
         $resources = array();

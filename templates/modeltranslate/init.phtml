@@ -89,6 +89,7 @@
                 prefered: pref
             };
             
+            $("#content").fadeOut(300);
             $("#settings").slideUp(500, function(){
                 $("#loader").show();
                 $("#content").html("");
@@ -97,6 +98,7 @@
             // send request
             $.post(urlBase+"modeltranslate/translate", request, function(data){
                 $("#content").html(data);
+                $("#content").fadeIn(300);
                 $("#loader").hide();
                 $("#config-toggle").show();
             })
