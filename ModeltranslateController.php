@@ -56,20 +56,12 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
      */
     public function initAction() {
         $this->createConfigurationElements();
-
-
-        ##Dummy Call
-
-        $predicates = array(    "http://www.w3.org/2000/01/rdf-schema#label",
-                                "http://www.w3.org/2000/01/rdf-schema#comment"
-                            );
-        $languages   = array(   "en",
-                                "de",
-                                "ru",
-                                "ar",
-                            );
-
-        $preferedBaseLanguage = "en";
+    }
+    
+    public function translateAction(){        
+        $predicates = $_POST['predicates'];
+        $languages  = $_POST['languages'];
+        $preferedBaseLanguage = $_POST['prefered'];
 
         $resources = $this->receiveResourceUris($predicates, $languages);
 
@@ -81,7 +73,6 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         }
 
         $resElements = $this->translateMissingElements($resElements, $languages, $preferedBaseLanguage);
-
 
         $this->view->resources = $resElements;
     }
