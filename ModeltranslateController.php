@@ -164,10 +164,16 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         ";
 
         $result = $this->model->sparqlQuery($query);
+
         $resources = array();
         foreach ($result as $entry) {
             $resources[] = $entry['s'];
         }
+
+        #Assigning the count of resources which have to be translated to the view
+        $this->view->countedResources  = $this->_erfurt->getStore()->countWhereMatches((string) $this->_owApp->selectedModel,"WHERE {" .$optional. " " .$pFilter. " " .$bFilter. " " .$b2Filter. "}", "?s", $distinct = true);
+
+
         return ($resources);
     }
 
