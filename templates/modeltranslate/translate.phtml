@@ -1,0 +1,59 @@
+<p class="messagebox info">
+On the basis of the selected filter settings <b><?php echo $this->countedResources ?> resources</b> have to be translated.
+</p>
+
+
+<?php foreach ($this->resources as $resource => $values) : ?>
+<table style ="padding:0px;margin-top:1em; border-top:1px dotted #ababab; background-color:#ededed;width:100% ">
+    <tr>
+        <th style ="padding:0.2em; padding-left:1em; border-bottom:1px dotted #ababab; background-color:#dcdcdc " colspan="3">
+            <b>Subject Identifier:</b>
+            <a class="hasMenu" style="text-decoration:none;"
+                                    about="<?php echo $resource; ?>"
+                                    href="<?php
+                                        $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                                        $url->setParam('r', $resource , true);
+                                    echo (string) $url ; ?>" >
+                <?php echo $this->titleHelper->getTitle($resource, $this->locale); ?>
+            </a>
+        </th>
+    </tr>
+
+   <?php foreach ($values as $predicate => $objects) : ?>
+    <tr >
+        <td style ="padding:0.2em; padding-left:2em; border-bottom:1px dotted #ababab; background-color:#efefef " colspan="3">
+            <b>Predicate Identifier:</b>
+            <a class="hasMenu" style="text-decoration:none;"
+                                    about="<?php echo $predicate; ?>"
+                                    href="<?php
+                                        $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                                        $url->setParam('r', $predicate , true);
+                                    echo (string) $url ; ?>" >
+                <?php echo $this->titleHelper->getTitle($predicate, $this->locale); ?>
+            </a>
+        </td>
+    </tr>
+       <?php foreach ($objects as $object) : ?>
+        <tr style ="background-color:#fff " >
+            <td style ="padding:0.2em; padding-left:3em;">
+                <?php echo ($object['lang'] ? $this->languages->$object['lang']->label : "miss") ?>
+            </td>
+            <td>
+                <input type="text" value="<?php echo $object['value'] ?>" size="80">
+            </td>
+            <td>
+                <b>Source: </b><?php echo $object['source'] ?>
+            </td>
+
+        </tr>
+        <?php endforeach ?>
+
+
+
+
+   <?php endforeach ?>
+
+
+
+</table>
+<?php endforeach ?>
