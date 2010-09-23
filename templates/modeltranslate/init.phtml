@@ -1,7 +1,10 @@
 <script type="text/javascript">
     $(document).ready(function(){
+        // spinner adress
+        var spinner = '<img src="<?php echo $this->themeUrlBase; ?>images/spinner.gif" style="margin: 50px;">';
+    
         // predicates stuff
-        $(".predicates").change(function(){
+        /*$(".predicates").change(function(){
             $("#all-predicates").attr('checked', false);
         });
         $("#all-predicates").change(function(){
@@ -10,7 +13,7 @@
                     $(this).attr("checked", false);
                 });
             }
-        });
+        });*/
         
         // languages stuff
         $(".languages").change(function(){
@@ -24,6 +27,20 @@
             }
         });
         
+        // config view toggle button
+        $("#config-btn").click(function(){
+            $("#settings").slideDown(500);
+            $("#cancel-settings").show();
+            $("#config-toggle").hide();
+        });
+        
+        $("#cancel-settings").click(function(){
+            $("#settings").slideUp(500, function(){
+                $(this).hide();
+                $("#config-toggle").show();
+            });
+        });
+        
         // send settings button
         $("#send-settings").click(function(){
             // init vars
@@ -32,14 +49,25 @@
             var pref = "en";
             
             // get predicates
-            var allpreds = $("#all-predicates").attr("checked");
+            //var allpreds = $("#all-predicates").attr("checked");
             $(".predicates").each(function(){
-                if(allpreds){
-                    preds.push( $(this).attr("id") );
-                }else if( $(this).attr("checked") ){
+                //if(allpreds){
+                //    preds.push( $(this).attr("id") );
+                //}else 
+                if( $(this).attr("checked") ){
                     preds.push( $(this).attr("id") );
                 }
             });
+            
+            // check pred count
+            if( preds.length > 3 ){
+                alert("Too many predicates! Maximum 3 allowed.\nPlease deselect some.");
+                return;
+            }
+            if( preds.length == 0 ){
+                alert("No predicates selected!\nPlease select some (3 max).");
+                return;
+            }
             
             // get languages
             var alllangs = $("#all-languages").attr("checked");
@@ -61,16 +89,23 @@
                 prefered: pref
             };
             
+            $("#settings").slideUp(500, function(){
+                $("#loader").show();
+                $("#content").html("");
+            });
+            
             // send request
             $.post(urlBase+"modeltranslate/translate", request, function(data){
                 $("#content").html(data);
+                $("#loader").hide();
+                $("#config-toggle").show();
             })
         })
     });
 </script>
 
 <!-- OPTIONS TABLE -->
-<table>
+<table id="settings">
 <tr>
     <th>Predicates</th>
     <th>Languages</th>
@@ -93,7 +128,7 @@
         <?php
             $i++;
         } ?>
-        <input type="radio" id="all-predicates" checked="true"> All predicates
+        <!-- <input type="radio" id="all-predicates" checked="true"> All predicates -->
     </td>
     <td>
         <?php 
@@ -120,10 +155,13 @@
 </tr>
 <tr>
     <td colspan="3" style="text-align:right;">
+        <button value="Cancel" id="cancel-settings" style="display: none;">Cancel</button>
         <button value="OK" id="send-settings">OK</button>
     </td>
 </tr>
 <!-- OPTIONS TABLE END -->
 </table>
+<div id="config-toggle" style="display: none; text-align: right;"><button id="config-btn">Config</button></div>
+<div id="loader" style="display: none; text-align: center;"><img src="<?php echo $this->themeUrlBase; ?>images/spinner.gif" style="margin: 50px;"/></div>
 <div id="content">
 </div>
