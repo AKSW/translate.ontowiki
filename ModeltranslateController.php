@@ -67,8 +67,6 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         // get del triples
         $del_triples = $triples->del;
         
-        return;
-        
         // parse add triples
         $add_elements = array();
         foreach($add_triples as $triple){
@@ -84,8 +82,14 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             $add_elements[] = $element;
         }
         
-        foreach ($elements as $elem) {
-            $this->_owApp->selectedModel->addMultipleStatements($elem);
+        // add triples to store
+        foreach ($add_elements as $elem) {
+            $this->model->addMultipleStatements($elem);
+        }
+        
+        // delete triples from store
+        foreach($del_triples as $triple){
+            $this->model->deleteStatement($triple->subject, $triple->predicate, $triple->object);
         }
     }
     

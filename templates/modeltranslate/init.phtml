@@ -1,4 +1,6 @@
 <script type="text/javascript">
+    var prefs_request = null;
+
     $(document).ready(function(){
         // spinner adress
         var spinner = '<img src="<?php echo $this->themeUrlBase; ?>images/spinner.gif" style="margin: 50px;">';
@@ -88,22 +90,28 @@
                 languages: langs,
                 prefered: pref
             };
-            
-            $("#content").fadeOut(300);
-            $("#settings").slideUp(500, function(){
-                $("#loader").show();
-                $("#content").html("");
-            });
-            
-            // send request
-            $.post(urlBase+"modeltranslate/translate", request, function(data){
-                $("#content").html(data);
-                $("#content").fadeIn(300);
-                $("#loader").hide();
-                $("#config-toggle").show();
-            })
+            // save request
+            prefs_request = request;
+            // get data
+            getProperties(request);
         });
     });
+    
+    var getProperties = function(request){
+        $("#content").fadeOut(300);
+        $("#settings").slideUp(500, function(){
+            $("#loader").show();
+            $("#content").html("");
+        });
+        
+        // send request
+        $.post(urlBase+"modeltranslate/translate", request, function(data){
+            $("#content").html(data);
+            $("#content").fadeIn(300);
+            $("#loader").hide();
+            $("#config-toggle").show();
+        })
+    };
     
     var doTranslate = function (){
         var subj, pred, obj, id, triple;
@@ -157,10 +165,8 @@
             $("#content").html("");
         });
         $.post(urlBase+"modeltranslate/store", request, function(data){
-            $("#content").html(data);
-            $("#content").fadeIn(300);
-            $("#loader").hide();
-            $("#config-toggle").show();
+            console.log(data);
+            getProperties(prefs_request);
         });
     };
     
