@@ -58,6 +58,37 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
         $this->createConfigurationElements();
     }
     
+    public function storeAction() {
+        // get triples
+        $triples = json_decode($_POST['triples']);
+        
+        // get add triples
+        $add_triples = $triples->add;
+        // get del triples
+        $del_triples = $triples->del;
+        
+        return;
+        
+        // parse add triples
+        $add_elements = array();
+        foreach($add_triples as $triple){
+            $element = array();
+            $element[$triple->subject] = array(
+                $triple->predicate => array(
+                    array(
+                        'type' => 'literal',
+                        'value' => $triple->object
+                    )
+                )
+            );
+            $add_elements[] = $element;
+        }
+        
+        foreach ($elements as $elem) {
+            $this->_owApp->selectedModel->addMultipleStatements($elem);
+        }
+    }
+    
     public function translateAction(){        
         $predicates = $_POST['predicates'];
         $languages  = $_POST['languages'];
@@ -154,7 +185,7 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
             LIMIT ". $limit ."
             OFFSET " . $offset . "
         ";
-var_dump($query);
+//var_dump($query);
         $result = $this->model->sparqlQuery($query);
 
         $resources = array();

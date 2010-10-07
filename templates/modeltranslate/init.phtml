@@ -102,8 +102,75 @@
                 $("#loader").hide();
                 $("#config-toggle").show();
             })
-        })
+        });
     });
+    
+    var doTranslate = function (){
+        var subj, pred, obj, id, triple;
+        var triples = {add:[], del:[]};
+        
+        $(".tr-resource").each(function(index,item){
+            // write down subject
+            subj = $("#tr-subject", item).attr("about");
+            $("a[id^='tr-predicate']", item).each(function(){
+                // get predicate
+                pred = $(this).attr("about");
+                
+                // get id
+                id = $(this).attr("id").replace("tr-predicate-", "");                
+                
+                // get values from inputs
+                $("input.save[id^='tr-object-"+id+"']", item).each(function(){
+                    // get object
+                    obj = $(this).val();
+                    
+                    // check if it's an old value or new
+                    if( typeof $(this).attr("about") !== "undefined" ){
+                        if( obj != $(this).attr("about") ){
+                            // add triple for removal
+                            triple = {subject:subj, predicate:pred, object:$(this).attr("about")};
+                            triples.del.push(triple);
+                            // add triple for insert
+                            triple = {subject:subj, predicate:pred, object:obj};
+                            triples.add.push(triple);
+                        }
+                    }else{
+                        // add triple for insert
+                        triple = {subject:subj, predicate:pred, object:obj};
+                        triples.add.push(triple);
+                    }
+                });
+            });
+        });
+        
+        triples = $.toJSON(triples);
+        
+        // create request
+        var request = {
+            triples: triples
+        };
+        
+        
+        $("#content").fadeOut(300);
+        $("#settings").slideUp(500, function(){
+            $("#loader").show();
+            $("#content").html("");
+        });
+        $.post(urlBase+"modeltranslate/store", request, function(data){
+            $("#content").html(data);
+            $("#content").fadeIn(300);
+            $("#loader").hide();
+            $("#config-toggle").show();
+        });
+    };
+    
+    var checkChange = function(element){
+        if( $(element).attr("about") != $(element).val() ){
+            $(element).removeClass().addClass('save');
+        }else{
+            $(element).removeClass().addClass('no');
+        }
+    };
 </script>
 
 <!-- OPTIONS TABLE -->
