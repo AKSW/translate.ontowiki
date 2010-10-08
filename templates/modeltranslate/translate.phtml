@@ -41,15 +41,16 @@ On the basis of the selected filter settings <b><?php echo $this->countedResourc
             </td>
             <td>
                 <input type="text" 
-                    value="<?php echo $object['value'] ?>" 
+                    value="<?php echo $object['value']; ?>" 
                     size="80" 
                     id="tr-object-<?php echo $i."-".$j++; ?>" 
                 <?php if($src == "miss"): ?>
-                    about="<?php echo $object['value'] ?>" 
-                    class="<?php echo "no" ?>" 
+                    about="<?php echo $object['value']; ?>" 
+                    class="<?php echo "no"; ?>" 
                     onkeyup="checkChange(this);"
                 <?php else: ?>
-                    class="<?php echo "save" ?>" 
+                    class="<?php echo "save"; ?>" 
+                    lang="<?php echo $object['lang']; ?>"
                 <?php endif; ?>
                     >
             </td>
@@ -63,4 +64,4 @@ On the basis of the selected filter settings <b><?php echo $this->countedResourc
 </table>
 <?php endforeach ?>
 
-<div style="text-align: right;"><button id="translate-btn" onclick="doTranslate();">Translate</button></div>
+<div style="text-align: right;"><button id="translate-btn" onclick="doTranslate();">Store</button></div>

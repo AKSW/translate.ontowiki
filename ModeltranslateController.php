@@ -75,7 +75,8 @@ class ModeltranslateController extends OntoWiki_Controller_Component {
                 $triple->predicate => array(
                     array(
                         'type' => 'literal',
-                        'value' => $triple->object
+                        'value' => $triple->object,
+                        'lang' => $triple->lang
                     )
                 )
             );
