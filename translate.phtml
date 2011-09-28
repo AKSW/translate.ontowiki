@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * OntoWiki navigation template
+ *
+ *
+ for RDFA:
+ _require(urlBase+'extensions/modules/translate/translate.script.php');
+
+                    <a class="hasMenu" style="color:black; text-decoration:none; font-style:italic"
+                        about="<?php echo $info->getPropertyUri(); ?>"
+                        href="<?php echo $info->getPropertyUrl(); ?>" ">
+                       <?php echo $this->titleHelper->getTitle($info->getPropertyUri(), $this->locale); ?>
+                    </a>
+
+
+*/
+#var_dump($this->data);
+
+$langs = array();
+foreach($this->languages as $key => $elem){ 
+     $langs[] = $elem->code;
+};
+
+$schemas = array();
+foreach($this->properties as $key => $prop){
+    $schemas[] = $prop;
+}
+
+?>
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    RDFAUTHOR_READY_CALLBACK = function(){
+        // load RDFa
+        $.getScript(urlBase+"extensions/modules/translate/translate.script.php");
+    };
+
+    google.load("language", "1");  
+    
+    var languages = ['[none]','<?php echo implode("','", $langs) ?>'];
+    var baseLanguage = '<?php echo $this->selectedBaseLanguage; ?>';
+    var baseValues = {};  
+    
+    var schemas = ['<?php echo implode("','", $schemas) ?>'];
+    
+    $(document).ready(function(){
+        // details animation
+        $("#toggleTranslationDetails").click(function(){
+            if( $('#TranslationModuleDetails').is(":visible") ){
+                $('#TranslationModuleDetails').slideUp(300);
+            }else{
+                $('#TranslationModuleDetails').slideDown(300);
+            }
+        });
+        
+        // config animation
+        $("#toggleTranslationConfig").click(function(){
+            if( $('#TranslationModuleConfig').is(":visible") ){
+                $('#TranslationModuleConfig').slideUp(300);
+            }else{
+                $('#TranslationModuleConfig').slideDown(300);
+            }
+        })
+    });
+</script>
+
+
+
+<div style="padding:2px; margin:0;border-bottom:1px dotted #ababab; background-color:#ededed; min-width: 20em">
+    <div style="text-align:right; width:100%; padding-bottom:1em">
+        <h3 style="float:left;font-style:italic;color:#898989;">Property Translate</h3>
+        <a id="toggleTranslationDetails" class="minibutton"><?php echo $this->_(' Details ') ?></a>&nbsp;
+        <a id="toggleTranslationConfig"  class="minibutton"><?php echo $this->_(' Config ') ?></a>
+    </div>
+    <form name="TranslationModule" method="post" action="
+        <?php
+            $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+            $url->setParam('r', $this->resource , true);
+            $url->setParam('translationMode', 'auto' , true);
+            echo (string) $url ; 
+        ?> ">
+
+
+        <div id="TranslationModuleConfig" class="messagebox" style="display: none; border-top:1px dotted #ababab; border-bottom:1px dotted #ababab;">
+            <h5 style="font-style:italic;color:#898989;">prefered source in:</h5>
+            <select name="selectedBaseLanguage" style="min-width:4em">
+            <?php foreach ($this->languages as $languageKey => $languageValue) : ?>
+                <option
+                    value="<?php echo $languageValue->code; ?>"
+                    <?php if (!empty($languageValue->default)) : ?>
+                      selected
+                    <?php endif; ?>
+                >
+                    <?php echo $languageValue->label; ?>
+                </option>
+            <?php endforeach; ?>
+            </select>
+            <br><br>
+            <h5 style="font-style:italic;color:#898989;">Property selection :</h5>
+            <?php foreach ($this->titles as $property => $titles) : ?>
+
+                <input type="radio" name="PropertySelection" value="<?php echo $property ?>" >
+                        <a class="hasMenu" style="text-decoration:none;"
+                                    about="<?php echo $property; ?>"
+                                    href="<?php
+                                        $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                                        $url->setParam('r', $property , true);
+                                    echo (string) $url ; ?>" >
+                            <?php echo $this->titleHelper->getTitle($property, $this->locale); ?> </a>
+                <br>
+            <?php endforeach ?>
+            <input type="radio" name="PropertySelection" value="default" checked > Translate all Properties (default)
+            <br><br>
+            <h5 style="font-style:italic;color:#898989;">Saving to Store :</h5>
+            <input type="radio" name="PersistencyConfig" value="withoutSaving" > only Translate<br>
+            <input type="radio" name="PersistencyConfig" value="withSaving" checked > Translate and Save
+            <div style="clear:both"></div>
+        </div>
+
+    <p class="messagebox" style="font-style:italic; font-size:0.7em">
+        Please press Button "Translate" for automatic translation. After Translation please refresh.
+    </p>
+
+        <input type="submit" class="button" value="Translate" >
+        <a class="button" href="
+        <?php
+            $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+            $url->setParam('r', $this->resource , true);
+            echo (string) $url ;
+        ?> " >refresh</a>
+    </form>
+    <div style="clear:both"></div>
+</div>
+
+<div id="TranslationModuleDetails" 
+    <?php if (!empty($this->withoutSaving)) : ?>
+        style="display: block;"
+     <?php else : ?>
+        style="display: none;"
+     <?php endif;?>
+>
+<?php foreach ($this->titles as $property => $titles) : ?>
+<table style ="padding:0px;margin-top:1em; border-top:1px dotted #ababab; background-color:#ededed ">
+    <tr><th colspan=2> <?php echo $this->_('literal values for '); ?>
+            <a class="hasMenu" style="text-decoration:none;"
+                        about="<?php echo $property; ?>"
+                        href="<?php 
+                            $url = new OntoWiki_Url(array('route' => 'properties'), array('r'));
+                            $url->setParam('r', $property , true);
+                        echo (string) $url ; ?>" >
+                <?php echo $this->titleHelper->getTitle($property, $this->locale); ?> </a>
+    </th></tr>
+    <?php foreach ($titles as $title) : ?>
+
+        <tr style="border-bottom:1px dashed #999;"><td>
+            <?php if (!empty($title['lang'])) : ?>
+               <span style="font-weight:bold"><?php echo (!empty($this->languages->$title['lang']->label) ? $this->languages->$title['lang']->label : $title['lang']) ?></span>
+            <?php else : ?>
+               <span style="color:red">!!!</span>
+               <span style="font-weight:bold;font-style:italic">without language</span>
+            <?php endif; ?>
+            <br>
+
+            <?php if (!isset($title['title'])) : ?>
+                <span style="color:red">!!!</span>
+                <span style="font-style:italic"> <?php echo $this->_('content not available yet') ?> </span>
+            <?php else : ?>
+                <span style="font-style:italic;color:green">
+                    <?php if (strlen($title['title']) > 25) : ?>
+                        <?php echo mb_substr($title['title'], 0, 25, "UTF-8"); ?> ...
+                    <?php else : ?>
+                        <?php echo $title['title']; ?>
+                    <?php endif; ?>
+                </span>
+            <?php endif; ?>
+        </td></tr>
+    <?php endforeach; ?>
+</table>
+<?php endforeach; ?>
+</div>
