@@ -7,14 +7,14 @@ require_once 'OntoWiki/Menu.php';
  * @category   OntoWiki
  * @package    OntoWiki_extensions_components_files
  */
-class ModeltranslateHelper extends OntoWiki_Component_Helper
+class TranslateHelper extends OntoWiki_Component_Helper
 {
     public function __construct()
     {
         $this->owApp = OntoWiki::getInstance();
         // register with extras menu
         $this->translate  = $this->owApp->translate;
-        $url        = new OntoWiki_Url(array('controller' => 'modeltranslate', 'action' => 'init'));
+        $url        = new OntoWiki_Url(array('controller' => 'translate', 'action' => 'init'));
 
         $appMenu    = OntoWiki_Menu_Registry::getInstance()->getMenu('application');
         $extrasMenu = $appMenu->getSubMenu('Extras');

@@ -15,7 +15,7 @@ require_once 'Erfurt/Sparql/Query2.php';
  * @license    http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
-class ModeltranslateController extends OntoWiki_Controller_Component {
+class TranslateController extends OntoWiki_Controller_Component {
 
     public function init() {
         parent::init();
