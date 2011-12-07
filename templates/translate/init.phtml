@@ -105,7 +105,7 @@
         });
         
         // send request
-        $.post(urlBase+"modeltranslate/translate", request, function(data){
+        $.post(urlBase+"translate/translate", request, function(data){
             $("#content").html(data);
             $("#content").fadeIn(300);
             $("#loader").hide();
@@ -165,7 +165,7 @@
             $("#loader").show();
             $("#content").html("");
         });
-        $.post(urlBase+"modeltranslate/store", request, function(data){
+        $.post(urlBase+"translate/store", request, function(data){
             console.log(data);
             getProperties(prefs_request);
         });
